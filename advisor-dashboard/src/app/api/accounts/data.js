@@ -1,91 +1,133 @@
 export const allAccounts = [
-    // Advisor 1 accounts
-    {
-      id: 101,
-      advisorId: 1,
-      clientName: "Michael Brown",
-      accountType: "401(k)",
-      accountNumber: "AC-7845-1201",
-      custodian: "Fidelity",
-    },
-    {
-      id: 102,
-      advisorId: 1,
-      clientName: "Sarah Johnson",
-      accountType: "IRA",
-      accountNumber: "AC-7845-1202",
-      custodian: "Vanguard",
-    },
-    {
-      id: 103,
-      advisorId: 1,
-      clientName: "David Lee",
-      accountType: "Brokerage",
-      accountNumber: "AC-7845-1203",
-      custodian: "Charles Schwab",
-    },
-    
-    // Advisor 2 accounts
-    {
-      id: 201,
-      advisorId: 2,
-      clientName: "Jennifer Wilson",
-      accountType: "Roth IRA",
-      accountNumber: "AC-8932-2101",
-      custodian: "Fidelity",
-    },
-    {
-      id: 202,
-      advisorId: 2,
-      clientName: "Thomas Moore",
-      accountType: "401(k)",
-      accountNumber: "AC-8932-2102",
-      custodian: "Vanguard",
-    },
-    
-    // Advisor 3 accounts
-    {
-      id: 301,
-      advisorId: 3,
-      clientName: "Lisa Garcia",
-      accountType: "Brokerage",
-      accountNumber: "AC-9213-3101",
-      custodian: "Charles Schwab",
-    },
-    {
-      id: 302,
-      advisorId: 3,
-      clientName: "Kevin Martinez",
-      accountType: "IRA",
-      accountNumber: "AC-9213-3102",
-      custodian: "Fidelity",
-    },
-    
-    // Advisor 4 accounts
-    {
-      id: 401,
-      advisorId: 4,
-      clientName: "Patricia Taylor",
-      accountType: "401(k)",
-      accountNumber: "AC-6547-4101",
-      custodian: "Vanguard",
-    },
-    
-    // Advisor 5 accounts
-    {
-      id: 501,
-      advisorId: 5,
-      clientName: "James Anderson",
-      accountType: "Roth IRA",
-      accountNumber: "AC-7812-5101",
-      custodian: "Charles Schwab",
-    },
-    {
-      id: 502,
-      advisorId: 5,
-      clientName: "Elizabeth White",
-      accountType: "Brokerage",
-      accountNumber: "AC-7812-5102",
-      custodian: "Fidelity",
-    }
-  ];
+  // Randall Green's accounts (id: 4)
+  {
+    name: "Bradley Green - 401k",
+    number: "21889645",
+    repId: "1271",
+    holdings: [
+      {
+        ticker: "HEMCX",
+        units: 77,
+        unitPrice: 398.63
+      }
+    ],
+    custodian: "Schwab"
+  },
+  {
+    name: "Sarah Johnson - IRA",
+    number: "21889646",
+    repId: "8996",
+    holdings: [
+      {
+        ticker: "ICKAX",
+        units: 100,
+        unitPrice: 245.50
+      },
+      {
+        ticker: "VTSAX",
+        units: 50,
+        unitPrice: 175.25
+      }
+    ],
+    custodian: "Fidelity"
+  },
+
+  // Jane Smith's accounts (id: 1)
+  {
+    name: "Michael Thompson - Roth IRA",
+    number: "45678901",
+    repId: "1234",
+    holdings: [
+      {
+        ticker: "VFIAX",
+        units: 200,
+        unitPrice: 325.75
+      }
+    ],
+    custodian: "Schwab"
+  },
+  {
+    name: "Emily Davis - 401k",
+    number: "45678902",
+    repId: "5678",
+    holdings: [
+      {
+        ticker: "FXAIX",
+        units: 150,
+        unitPrice: 155.30
+      },
+      {
+        ticker: "VBTLX",
+        units: 300,
+        unitPrice: 85.20
+      }
+    ],
+    custodian: "Fidelity"
+  },
+
+  // John Doe's accounts (id: 2)
+  {
+    name: "Robert Wilson - Brokerage",
+    number: "34567890",
+    repId: "2345",
+    holdings: [
+      {
+        ticker: "SWPPX",
+        units: 400,
+        unitPrice: 142.85
+      },
+      {
+        ticker: "SWTSX",
+        units: 250,
+        unitPrice: 98.45
+      }
+    ],
+    custodian: "Schwab"
+  },
+  {
+    name: "Patricia Brown - IRA",
+    number: "34567891",
+    repId: "6789",
+    holdings: [
+      {
+        ticker: "VTSAX",
+        units: 180,
+        unitPrice: 175.25
+      }
+    ],
+    custodian: "Vanguard"
+  },
+
+  // Alice Johnson's accounts (id: 3)
+  {
+    name: "David Miller - 401k",
+    number: "56789012",
+    repId: "3456",
+    holdings: [
+      {
+        ticker: "FSKAX",
+        units: 300,
+        unitPrice: 112.40
+      },
+      {
+        ticker: "FTBFX",
+        units: 200,
+        unitPrice: 92.15
+      }
+    ],
+    custodian: "Fidelity"
+  },
+  {
+    name: "Susan White - Roth IRA",
+    number: "56789013",
+    repId: "3456",
+    holdings: [
+      {
+        ticker: "FXAIX",
+        units: 250,
+        unitPrice: 155.30
+      }
+    ],
+    custodian: "Fidelity"
+  }
+];

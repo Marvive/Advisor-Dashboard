@@ -1,28 +1,29 @@
 import { advisors } from './data';
 import { allAccounts } from '../accounts/data';
-import { allHoldings } from '../holdings/data';
 
 export async function GET() {
-  // First calculate balances for all accounts
-  const accountsWithBalance = allAccounts.map(account => {
-    const holdings = allHoldings.filter(holding => holding.accountId === account.id);
-    const balance = holdings.reduce((sum, holding) => sum + holding.value, 0);
-    return { ...account, balance };
-  });
-
-  // Then calculate total assets for each advisor
-  const advisorsWithCalculatedAssets = advisors.map(advisor => {
-    const advisorAccounts = accountsWithBalance.filter(account => account.advisorId === advisor.id);
-    const totalAssets = advisorAccounts.reduce((sum, account) => sum + account.balance, 0);
-    const accountCount = advisorAccounts.length;
+  const advisorsWithCalculatedData = advisors.map(advisor => {
+    // Get all repIds for this advisor
+    const advisorRepIds = advisor.custodians.map(c => c.repId);
     
-    return { ...advisor,
-       totalAssets,
-       accountCount };
+    // Find accounts that belong to this advisor using repIds
+    const advisorAccounts = allAccounts.filter(account => 
+      advisorRepIds.includes(account.repId)
+    );
 
+    // Calculate total assets and account count
+    const totalAssets = advisorAccounts.reduce((sum, account) => {
+      const accountValue = account.holdings.reduce((holdingSum, holding) => 
+        holdingSum + (holding.units * holding.unitPrice), 0);
+      return sum + accountValue;
+    }, 0);
+
+    return {
+      ...advisor,
+      accountCount: advisorAccounts.length,
+      totalAssets
+    };
   });
 
-  
-
-  return Response.json(advisorsWithCalculatedAssets);
+  return Response.json(advisorsWithCalculatedData);
 }

@@ -98,3 +98,19 @@ export const allHoldings = [
     }
   ];
   
+export const securities = [
+  {
+    id: "2e5012db-3a39415d-93b48b1e3b453c6c",
+    ticker: "ICKAX",
+    name: "Delaware Ivy Crossover Credit Fund Class A",
+    dateAdded: "2001-06-07T11:12:56.205Z"
+  },
+  {
+    id: "3f6123ec-4b4a526e-a4c59c2f4c564d7d",
+    ticker: "HEMCX",
+    name: "Hemisphere Growth Fund Class X",
+    dateAdded: "2005-08-15T09:30:00.000Z"
+  }
+  // Add more securities as needed
+];
+  

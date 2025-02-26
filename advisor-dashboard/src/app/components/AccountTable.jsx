@@ -109,8 +109,8 @@ export default function AccountTable({ advisorId }) {
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell><strong>Client Name</strong></TableCell>
-              <TableCell><strong>Account Type</strong></TableCell>
+              <TableCell><strong>Account Name</strong></TableCell>
+              <TableCell><strong>Rep ID</strong></TableCell>
               <TableCell><strong>Account Number</strong></TableCell>
               <TableCell><strong>Custodian</strong></TableCell>
               <TableCell align="right"><strong>Balance</strong></TableCell>
@@ -120,9 +120,9 @@ export default function AccountTable({ advisorId }) {
           <TableBody>
             {filteredAccounts.map((account) => (
               <TableRow key={account.id} hover>
-                <TableCell>{account.clientName}</TableCell>
-                <TableCell>{account.accountType}</TableCell>
-                <TableCell>{account.accountNumber}</TableCell>
+                <TableCell>{account.name}</TableCell>
+                <TableCell>{account.repId}</TableCell>
+                <TableCell>{account.number}</TableCell>
                 <TableCell>{account.custodian}</TableCell>
                 <TableCell align="right">{formatCurrency(account.balance)}</TableCell>
                 <TableCell align="center">

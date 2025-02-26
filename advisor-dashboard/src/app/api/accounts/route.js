@@ -1,23 +1,31 @@
-import { allHoldings } from '../holdings/data'; // Import holdings data
-import { allAccounts } from './data'; // Import accounts data
+import { allAccounts } from './data';
+import { advisors } from '../advisors/data';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const advisorId = searchParams.get('advisorId');
   
-  // Mock data for accounts
-  
-  // Calculate balance from holdings
-  const accountsWithBalance = allAccounts.map(account => {
-    const holdings = allHoldings.filter(holding => holding.accountId === account.id);
-    const balance = holdings.reduce((sum, holding) => sum + holding.value, 0);
-    return { ...account, balance };
-  });
+  if (!advisorId) {
+    return Response.json(allAccounts);
+  }
 
-  // Filter accounts by advisorId if provided
-  const accounts = advisorId 
-    ? accountsWithBalance.filter(account => account.advisorId === parseInt(advisorId))
-    : accountsWithBalance;
-  
+  // Find advisor and their repIds
+  const advisor = advisors.find(a => a.id === advisorId);
+  if (!advisor) {
+    return Response.json([]);
+  }
+
+  const advisorRepIds = advisor.custodians.map(c => c.repId);
+
+  // Filter accounts by advisor's repIds and calculate values
+  const accounts = allAccounts
+    .filter(account => advisorRepIds.includes(account.repId))
+    .map(account => ({
+      ...account,
+      balance: account.holdings.reduce((sum, holding) => 
+        sum + (holding.units * holding.unitPrice), 0
+      )
+    }));
+
   return Response.json(accounts);
 } 
