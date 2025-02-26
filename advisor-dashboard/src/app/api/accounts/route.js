@@ -1,4 +1,4 @@
-import { allHoldings } from '../holdings/route'; // Import holdings data
+import { allHoldings } from '../holdings/data'; // Import holdings data
 import { allAccounts } from './data'; // Import accounts data
 
 export async function GET(request) {
