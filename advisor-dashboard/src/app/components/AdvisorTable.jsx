@@ -113,7 +113,6 @@ export default function AdvisorTable() {
             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
               <TableCell><strong>Advisor Name</strong></TableCell>
               <TableCell><strong>Email</strong></TableCell>
-              <TableCell align="right"><strong>Clients</strong></TableCell>
               <TableCell align="right"><strong>Accounts</strong></TableCell>
               <TableCell align="right"><strong>Total Assets</strong></TableCell>
               <TableCell align="center"><strong>Actions</strong></TableCell>
@@ -124,7 +123,6 @@ export default function AdvisorTable() {
               <TableRow key={advisor.id} hover>
                 <TableCell>{advisor.name}</TableCell>
                 <TableCell>{advisor.email}</TableCell>
-                <TableCell align="right">{advisor.clientCount}</TableCell>
                 <TableCell align="right">{advisor.accountCount}</TableCell>
                 <TableCell align="right">{formatCurrency(advisor.totalAssets)}</TableCell>
                 <TableCell align="center">
