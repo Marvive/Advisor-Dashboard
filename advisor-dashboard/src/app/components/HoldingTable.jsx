@@ -33,6 +33,7 @@ export default function HoldingTable({ account }) {
     setFilteredHoldings(filtered);
   };
   
+  // Loading state - if the data is still loading, we show a loading spinner
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -46,6 +47,7 @@ export default function HoldingTable({ account }) {
     sum + (holding.units * holding.unitPrice), 0
   );
   
+  // If the data is loaded, we show the holdings table
   return (
     <Box>
       <FilterSort onFilterSort={handleFilterSort} type="holdings" />

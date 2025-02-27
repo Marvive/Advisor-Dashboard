@@ -53,6 +53,7 @@ The production version will be available at [http://localhost:3000](http://local
 - `/styles/` - CSS styles
 - `layout.js` - Root layout component
 - `page.jsx` - Main page component
+- `/utils/` - Helper methods to reduce repetition
 
 ### API Endpoints
 - `/api/advisors` - Get all advisors or add a new advisor

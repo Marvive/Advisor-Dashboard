@@ -11,5 +11,3 @@ export const formatCurrency = (amount) => {
       maximumFractionDigits: 0
     }).format(amount);
   };
-  
-  // You can add other formatting functions here as needed
