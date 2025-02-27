@@ -1,4 +1,4 @@
-'use client';
+'use client'; // tells next.js to render this component on the client
 import { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
@@ -8,35 +8,43 @@ import AccountTable from './AccountTable';
 import FilterSort from './FilterSort';
 
 export default function AdvisorTable() {
-  const [advisors, setAdvisors] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedAdvisor, setSelectedAdvisor] = useState(null);
-  const [filteredAdvisors, setFilteredAdvisors] = useState([]);
+  // state variables to store the advisors, loading state, selected advisor, and filtered advisors
+  const [advisors, setAdvisors] = useState([]); // List of advisors
+  const [loading, setLoading] = useState(true); // Loading state
+  const [selectedAdvisor, setSelectedAdvisor] = useState(null); // Selected advisor
+  const [filteredAdvisors, setFilteredAdvisors] = useState([]); // Filtered advisors
   
+  // useEffect runs after render - here it's used to fetch data after the component mounts
   useEffect(() => {
     const fetchAdvisors = async () => {
       try {
+        // Fetch the advisors from the API
         const response = await fetch('/api/advisors');
         const data = await response.json();
+        // Update the state variables with the fetched data
         setAdvisors(data);
         setFilteredAdvisors(data);
       } catch (error) {
         console.error('Error fetching advisors:', error);
       } finally {
+        // Set the loading state to false after the data has been fetched
         setLoading(false);
       }
     };
     
     fetchAdvisors();
-  }, []);
+  }, []); // Empty array means this effect only runs once after the initial render
+  
   // When a user clicks "View Accounts" for an advisor, we set the selected advisor to the advisor in question
   const handleViewAccounts = (advisor) => {
     setSelectedAdvisor(advisor);
   };
+
   // When a user clicks "Back" from the AccountTable, we set the selected advisor to null
   const handleBack = () => {
-    setSelectedAdvisor(null);
+    setSelectedAdvisor(null); // Clears the selected advisor and returns
   };
+
   // This function formats the currency to USD
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -64,10 +72,12 @@ export default function AdvisorTable() {
     if (sortField) {
       filtered.sort((a, b) => {
         if (typeof a[sortField] === 'string') {
+          // Sort Alphabetically if a string
           return sortOrder === 'asc' 
             ? a[sortField].localeCompare(b[sortField])
             : b[sortField].localeCompare(a[sortField]);
         } else {
+          // Sort Numerically if a number
           return sortOrder === 'asc'
             ? a[sortField] - b[sortField]
             : b[sortField] - a[sortField];
@@ -75,9 +85,10 @@ export default function AdvisorTable() {
       });
     }
     
-    setFilteredAdvisors(filtered);
+    setFilteredAdvisors(filtered); // Update state with filtered/sorted advisors
   };
   
+  // Loading state - if the data is still loading, we show a loading spinner
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -85,7 +96,8 @@ export default function AdvisorTable() {
       </Box>
     );
   }
-  
+
+  // If a user has selected an advisor, we show the accounts for that advisor
   if (selectedAdvisor) {
     return (
       <Box>
@@ -93,13 +105,14 @@ export default function AdvisorTable() {
           Back to Advisors
         </Button>
         <Typography variant="h5" sx={{ mb: 2 }}>
-          Accounts managed by {selectedAdvisor.name}
+          Accounts Managed by {selectedAdvisor.name}
         </Typography>
         <AccountTable advisorId={selectedAdvisor.id} />
       </Box>
     );
   }
   
+  // If a user has not selected an advisor, we show the advisor table
   return (
     <Box>
       <Typography variant="h4" sx={{ mb: 3 }}>

@@ -4,7 +4,7 @@
 This project is a financial advisor dashboard for Compound Planning, built using Next.js, React, and Material UI. The dashboard allows users to view and manage financial advisors, their accounts, and holdings. It features filtering, sorting, and navigation between different views.
 
 ## Repository Information
-- **GitHub Repository**: [Compound-Project-1](https://github.com/Marvive/Compound-Project-1)
+- **GitHub Repository**: [Compound-Project](https://github.com/Marvive/Compound-Project)
 - **Main Technologies**: Next.js 15, React 19, Material UI 6, Node.js
 
 ## Installation and Setup Instructions
@@ -16,8 +16,8 @@ This project is a financial advisor dashboard for Compound Planning, built using
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/Marvive/Compound-Project-1.git
-cd Compound-Project-1/advisor-dashboard
+git clone https://github.com/Marvive/Compound-Project.git
+cd Compound-Project/advisor-dashboard
 ```
 
 ### Step 2: Install Dependencies
@@ -93,6 +93,7 @@ The production version will be available at [http://localhost:3000](http://local
 
 ## Assumptions Made
 - I added the capability of email address for the advisor to ensure that the users are unique
+- Assumption made here that Rep ID is the advisor's repId which connects the custodians to the Advisor
 
 ## Acceptance Criteria
 

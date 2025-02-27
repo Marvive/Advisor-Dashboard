@@ -1,4 +1,6 @@
 // Mock data for advisors
+// Each advisor has a list of custodians and each custodian has a repId
+// Takes repID from custodians then finds all accounts that have that repId
 export const advisors = [
   {
     id: "1",
