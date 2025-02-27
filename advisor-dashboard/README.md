@@ -91,3 +91,5 @@ The production version will be available at [http://localhost:3000](http://local
 - Add API Documentation
 - URL based routing (optional)
 
+## Assumptions Made
+- I added the capability of email address for the advisor to ensure that the users are unique
