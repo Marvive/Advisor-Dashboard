@@ -3,8 +3,6 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const accountId = searchParams.get('accountId');
   
-  // Mock data for holdings
-  
   
   // Filter holdings by accountId if provided
   const holdings = accountId 

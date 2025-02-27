@@ -18,6 +18,7 @@ export default function AccountTable({ advisorId }) {
       try {
         const response = await fetch(`/api/accounts?advisorId=${advisorId}`);
         const data = await response.json();
+        console.log("Fetched accounts:", data); // Debug log
         setAccounts(data);
         setFilteredAccounts(data);
       } catch (error) {
@@ -31,6 +32,7 @@ export default function AccountTable({ advisorId }) {
   }, [advisorId]);
   
   const handleViewHoldings = (account) => {
+    console.log("Selected account:", account); // Debug log
     setSelectedAccount(account);
   };
   
@@ -54,10 +56,9 @@ export default function AccountTable({ advisorId }) {
     if (filterValue) {
       const lowerCaseFilter = filterValue.toLowerCase();
       filtered = filtered.filter(account => 
-        account.clientName.toLowerCase().includes(lowerCaseFilter) ||
-        account.accountType.toLowerCase().includes(lowerCaseFilter) ||
+        account.name.toLowerCase().includes(lowerCaseFilter) ||
         account.custodian.toLowerCase().includes(lowerCaseFilter) ||
-        account.accountNumber.toLowerCase().includes(lowerCaseFilter)
+        account.number.toLowerCase().includes(lowerCaseFilter)
       );
     }
     
@@ -94,9 +95,9 @@ export default function AccountTable({ advisorId }) {
           Back to Accounts
         </Button>
         <Typography variant="h5" sx={{ mb: 2 }}>
-          Holdings for {selectedAccount.clientName}'s {selectedAccount.accountType} Account
+          Holdings for {selectedAccount.name}
         </Typography>
-        <HoldingTable accountId={selectedAccount.id} />
+        <HoldingTable account={selectedAccount} />
       </Box>
     );
   }
@@ -119,7 +120,7 @@ export default function AccountTable({ advisorId }) {
           </TableHead>
           <TableBody>
             {filteredAccounts.map((account) => (
-              <TableRow key={account.id} hover>
+              <TableRow key={account.number} hover>
                 <TableCell>{account.name}</TableCell>
                 <TableCell>{account.repId}</TableCell>
                 <TableCell>{account.number}</TableCell>

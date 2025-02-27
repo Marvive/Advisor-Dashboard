@@ -29,15 +29,15 @@ export default function AdvisorTable() {
     
     fetchAdvisors();
   }, []);
-  
+  // When a user clicks "View Accounts" for an advisor, we set the selected advisor to the advisor in question
   const handleViewAccounts = (advisor) => {
     setSelectedAdvisor(advisor);
   };
-  
+  // When a user clicks "Back" from the AccountTable, we set the selected advisor to null
   const handleBack = () => {
     setSelectedAdvisor(null);
   };
-  
+  // This function formats the currency to USD
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -47,10 +47,11 @@ export default function AdvisorTable() {
     }).format(amount);
   };
   
+  // This function filters and sorts the advisors
   const handleFilterSort = ({ sortField, sortOrder, filterValue }) => {
     let filtered = [...advisors];
     
-    // Apply filter
+    // Apply filter - if the user has typed in a name or email, we filter the advisors by that name or email
     if (filterValue) {
       const lowerCaseFilter = filterValue.toLowerCase();
       filtered = filtered.filter(advisor => 
@@ -59,7 +60,7 @@ export default function AdvisorTable() {
       );
     }
     
-    // Apply sort
+    // Apply sort - if the user has clicked on a column header (in the sort by), we sort the advisors by that column
     if (sortField) {
       filtered.sort((a, b) => {
         if (typeof a[sortField] === 'string') {

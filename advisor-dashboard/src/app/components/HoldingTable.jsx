@@ -6,27 +6,22 @@ import {
 } from '@mui/material';
 import FilterSort from './FilterSort';
 
-export default function HoldingTable({ accountId }) {
+export default function HoldingTable({ account }) {
   const [holdings, setHoldings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filteredHoldings, setFilteredHoldings] = useState([]);
   
   useEffect(() => {
-    const fetchHoldings = async () => {
-      try {
-        const response = await fetch(`/api/holdings?accountId=${accountId}`);
-        const data = await response.json();
-        setHoldings(data);
-        setFilteredHoldings(data);
-      } catch (error) {
-        console.error('Error fetching holdings:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchHoldings();
-  }, [accountId]);
+    // Instead of fetching from API, use the holdings data from the account
+    if (account && account.holdings) {
+      setHoldings(account.holdings);
+      setFilteredHoldings(account.holdings);
+      setLoading(false);
+    } else {
+      console.error('No holdings data found in account:', account);
+      setLoading(false);
+    }
+  }, [account]);
   
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -44,9 +39,7 @@ export default function HoldingTable({ accountId }) {
     if (filterValue) {
       const lowerCaseFilter = filterValue.toLowerCase();
       filtered = filtered.filter(holding => 
-        holding.securityName.toLowerCase().includes(lowerCaseFilter) ||
-        holding.ticker.toLowerCase().includes(lowerCaseFilter) ||
-        holding.assetClass.toLowerCase().includes(lowerCaseFilter)
+        holding.ticker.toLowerCase().includes(lowerCaseFilter)
       );
     }
     
@@ -76,6 +69,11 @@ export default function HoldingTable({ accountId }) {
     );
   }
   
+  // Calculate total value of all holdings
+  const totalValue = filteredHoldings.reduce((sum, holding) => 
+    sum + (holding.units * holding.unitPrice), 0
+  );
+  
   return (
     <Box>
       <FilterSort onFilterSort={handleFilterSort} type="holdings" />
@@ -84,25 +82,25 @@ export default function HoldingTable({ accountId }) {
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell><strong>Security Name</strong></TableCell>
               <TableCell><strong>Ticker</strong></TableCell>
-              <TableCell><strong>Asset Class</strong></TableCell>
-              <TableCell align="right"><strong>Shares</strong></TableCell>
-              <TableCell align="right"><strong>Price</strong></TableCell>
+              <TableCell align="right"><strong>Units</strong></TableCell>
+              <TableCell align="right"><strong>Unit Price</strong></TableCell>
               <TableCell align="right"><strong>Value</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredHoldings.map((holding) => (
-              <TableRow key={holding.id} hover>
-                <TableCell>{holding.securityName}</TableCell>
+            {filteredHoldings.map((holding, index) => (
+              <TableRow key={index} hover>
                 <TableCell>{holding.ticker}</TableCell>
-                <TableCell>{holding.assetClass}</TableCell>
-                <TableCell align="right">{holding.shares.toLocaleString()}</TableCell>
-                <TableCell align="right">${holding.price.toFixed(2)}</TableCell>
-                <TableCell align="right">{formatCurrency(holding.value)}</TableCell>
+                <TableCell align="right">{holding.units.toLocaleString()}</TableCell>
+                <TableCell align="right">${holding.unitPrice.toFixed(2)}</TableCell>
+                <TableCell align="right">{formatCurrency(holding.units * holding.unitPrice)}</TableCell>
               </TableRow>
             ))}
+            <TableRow>
+              <TableCell colSpan={3} align="right"><strong>Total:</strong></TableCell>
+              <TableCell align="right"><strong>{formatCurrency(totalValue)}</strong></TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </TableContainer>
