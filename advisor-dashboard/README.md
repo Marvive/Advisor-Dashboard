@@ -91,6 +91,11 @@ The production version will be available at [http://localhost:3000](http://local
 - Add more comprehensive error handling and validation
 - Add API Documentation
 - URL based routing (optional)
+- Unit and System Testing
+- Login and Security
+- Data Encryption
+- Analytics i.e. usage tracking 
+- Create an installer (i.e. dmg) if meant to run as a standalone app or deploy as a webapp
 
 ## Assumptions Made
 - I added the capability of email address for the advisor to ensure that the users are unique
