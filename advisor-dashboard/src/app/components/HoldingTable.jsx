@@ -5,12 +5,16 @@ import {
   Paper, Box, CircularProgress
 } from '@mui/material';
 import FilterSort from './FilterSort';
+import { formatCurrency } from '../utils/formatters';
+import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
 
 export default function HoldingTable({ account }) {
-  const [holdings, setHoldings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filteredHoldings, setFilteredHoldings] = useState([]);
+  // State Variables
+  const [holdings, setHoldings] = useState([]); // Stores holdings
+  const [loading, setLoading] = useState(true); // Tracks loading state
+  const [filteredHoldings, setFilteredHoldings] = useState([]); // Stores Filtered holdings
   
+  // useEffect runs after render - here it's used to fetch data when component mounts
   useEffect(() => {
     // Instead of fetching from API, use the holdings data from the account
     if (account && account.holdings) {
@@ -21,43 +25,11 @@ export default function HoldingTable({ account }) {
       console.error('No holdings data found in account:', account);
       setLoading(false);
     }
-  }, [account]);
-  
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-  
-  const handleFilterSort = ({ sortField, sortOrder, filterValue }) => {
-    let filtered = [...holdings];
-    
-    // Apply filter
-    if (filterValue) {
-      const lowerCaseFilter = filterValue.toLowerCase();
-      filtered = filtered.filter(holding => 
-        holding.ticker.toLowerCase().includes(lowerCaseFilter)
-      );
-    }
-    
-    // Apply sort
-    if (sortField) {
-      filtered.sort((a, b) => {
-        if (typeof a[sortField] === 'string') {
-          return sortOrder === 'asc' 
-            ? a[sortField].localeCompare(b[sortField])
-            : b[sortField].localeCompare(a[sortField]);
-        } else {
-          return sortOrder === 'asc'
-            ? a[sortField] - b[sortField]
-            : b[sortField] - a[sortField];
-        }
-      });
-    }
-    
+  }, [account]); // Refetch if account changes
+
+  const handleFilterSort = (options) => {
+    const searchFields = getSearchFields('holdings');
+    const filtered = filterAndSortItems(holdings, { ...options, searchFields });
     setFilteredHoldings(filtered);
   };
   

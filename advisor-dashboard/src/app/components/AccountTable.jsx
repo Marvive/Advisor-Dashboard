@@ -6,16 +6,21 @@ import {
 } from '@mui/material';
 import HoldingTable from './HoldingTable';
 import FilterSort from './FilterSort';
+import { formatCurrency } from '../utils/formatters';
+import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
 
 export default function AccountTable({ advisorId }) {
-  const [accounts, setAccounts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const [filteredAccounts, setFilteredAccounts] = useState([]);
+  // State Variables
+  const [accounts, setAccounts] = useState([]); // Stores accounts
+  const [loading, setLoading] = useState(true); // Tracks loading state
+  const [selectedAccount, setSelectedAccount] = useState(null); // Tracks Selected account
+  const [filteredAccounts, setFilteredAccounts] = useState([]); // Stores Filtered accounts
   
+  // useEffect runs after render - here it's used to fetch data when component mounts
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
+        // Fetch accounts for the selected advisor
         const response = await fetch(`/api/accounts?advisorId=${advisorId}`);
         const data = await response.json();
         console.log("Fetched accounts:", data); // Debug log
@@ -24,62 +29,33 @@ export default function AccountTable({ advisorId }) {
       } catch (error) {
         console.error('Error fetching accounts:', error);
       } finally {
+        // Set loading state to false after data has been fetched
         setLoading(false);
       }
     };
     
     fetchAccounts();
-  }, [advisorId]);
+  }, [advisorId]); // Refetch if advisorId changes
   
+  // Handler for when user clicks on View Holdings
   const handleViewHoldings = (account) => {
     console.log("Selected account:", account); // Debug log
     setSelectedAccount(account);
   };
-  
+
+  // Handler for when user clicks on Back
   const handleBack = () => {
-    setSelectedAccount(null);
+    setSelectedAccount(null); // Clears the selected account and returns
+    setFilteredAccounts(accounts); // Reset filtered accounts to show all accounts
   };
   
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-  
-  const handleFilterSort = ({ sortField, sortOrder, filterValue }) => {
-    let filtered = [...accounts];
-    
-    // Apply filter
-    if (filterValue) {
-      const lowerCaseFilter = filterValue.toLowerCase();
-      filtered = filtered.filter(account => 
-        account.name.toLowerCase().includes(lowerCaseFilter) ||
-        account.custodian.toLowerCase().includes(lowerCaseFilter) ||
-        account.number.toLowerCase().includes(lowerCaseFilter)
-      );
-    }
-    
-    // Apply sort
-    if (sortField) {
-      filtered.sort((a, b) => {
-        if (typeof a[sortField] === 'string') {
-          return sortOrder === 'asc' 
-            ? a[sortField].localeCompare(b[sortField])
-            : b[sortField].localeCompare(a[sortField]);
-        } else {
-          return sortOrder === 'asc'
-            ? a[sortField] - b[sortField]
-            : b[sortField] - a[sortField];
-        }
-      });
-    }
-    
+  const handleFilterSort = (options) => {
+    const searchFields = getSearchFields('accounts');
+    const filtered = filterAndSortItems(accounts, { ...options, searchFields });
     setFilteredAccounts(filtered);
   };
   
+  // Loading state - if the data is still loading, we show a loading spinner
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -88,6 +64,7 @@ export default function AccountTable({ advisorId }) {
     );
   }
   
+  // If a user has selected an account, we show the holdings for that account
   if (selectedAccount) {
     return (
       <Box>
@@ -101,7 +78,8 @@ export default function AccountTable({ advisorId }) {
       </Box>
     );
   }
-  
+
+  // If a user has not selected an account, we show the account table
   return (
     <Box>
       <FilterSort onFilterSort={handleFilterSort} type="accounts" />

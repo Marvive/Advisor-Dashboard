@@ -26,16 +26,17 @@ export default function FilterSort({ onFilterSort, type }) {
         ];
       case 'accounts':
         return [
-          { value: 'clientName', label: 'Client Name' },
-          { value: 'balance', label: 'Balance' },
-          { value: 'accountType', label: 'Account Type' },
-          { value: 'custodian', label: 'Custodian' }
+          { value: 'name', label: 'Account Name' },
+          { value: 'repId', label: 'Rep ID' },
+          { value: 'number', label: 'Account Number' },
+          { value: 'custodian', label: 'Custodian' },
+          { value: 'balance', label: 'Balance' }
         ];
       case 'holdings':
         return [
-          { value: 'securityName', label: 'Security Name' },
-          { value: 'value', label: 'Value' },
-          { value: 'assetClass', label: 'Asset Class' }
+          { value: 'ticker', label: 'Ticker' },
+          { value: 'units', label: 'Units' },
+          { value: 'unitPrice', label: 'Unit Price' },
         ];
       default:
         return [];

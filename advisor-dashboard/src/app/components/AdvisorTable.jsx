@@ -6,6 +6,8 @@ import {
 } from '@mui/material';
 import AccountTable from './AccountTable';
 import FilterSort from './FilterSort';
+import { formatCurrency } from '../utils/formatters';
+import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
 
 export default function AdvisorTable() {
   // state variables to store the advisors, loading state, selected advisor, and filtered advisors
@@ -43,49 +45,14 @@ export default function AdvisorTable() {
   // When a user clicks "Back" from the AccountTable, we set the selected advisor to null
   const handleBack = () => {
     setSelectedAdvisor(null); // Clears the selected advisor and returns
-  };
-
-  // This function formats the currency to USD
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
+    setFilteredAdvisors(advisors); // Reset filtered advisors to show all advisors
   };
   
   // This function filters and sorts the advisors
-  const handleFilterSort = ({ sortField, sortOrder, filterValue }) => {
-    let filtered = [...advisors];
-    
-    // Apply filter - if the user has typed in a name or email, we filter the advisors by that name or email
-    if (filterValue) {
-      const lowerCaseFilter = filterValue.toLowerCase();
-      filtered = filtered.filter(advisor => 
-        advisor.name.toLowerCase().includes(lowerCaseFilter) ||
-        advisor.email.toLowerCase().includes(lowerCaseFilter)
-      );
-    }
-    
-    // Apply sort - if the user has clicked on a column header (in the sort by), we sort the advisors by that column
-    if (sortField) {
-      filtered.sort((a, b) => {
-        if (typeof a[sortField] === 'string') {
-          // Sort Alphabetically if a string
-          return sortOrder === 'asc' 
-            ? a[sortField].localeCompare(b[sortField])
-            : b[sortField].localeCompare(a[sortField]);
-        } else {
-          // Sort Numerically if a number
-          return sortOrder === 'asc'
-            ? a[sortField] - b[sortField]
-            : b[sortField] - a[sortField];
-        }
-      });
-    }
-    
-    setFilteredAdvisors(filtered); // Update state with filtered/sorted advisors
+  const handleFilterSort = (options) => {
+    const searchFields = getSearchFields('advisors');
+    const filtered = filterAndSortItems(advisors, { ...options, searchFields });
+    setFilteredAdvisors(filtered);
   };
   
   // Loading state - if the data is still loading, we show a loading spinner
