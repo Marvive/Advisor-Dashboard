@@ -18,6 +18,7 @@ export default function AccountTable({ advisorId }) {
   
   // useEffect runs after render - here it's used to fetch data when component mounts
   useEffect(() => {
+    // async function to fetch accounts. allows us to use await to wait for the data to be fetched
     const fetchAccounts = async () => {
       try {
         // Fetch accounts for the selected advisor

@@ -1,4 +1,13 @@
-'use client';
+/**
+ * HoldingTable.jsx
+ * 
+ * A component that displays a table of financial holdings for a specific account.
+ * It shows ticker symbols, units, unit prices, and calculated values with a total at the bottom.
+ * Includes filtering and sorting capabilities through the FilterSort component.
+ */
+
+'use client'; // Mark as client component for Next.js
+
 import { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
@@ -8,32 +17,62 @@ import FilterSort from './FilterSort';
 import { formatCurrency } from '../utils/formatters';
 import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
 
+/**
+ * HoldingTable Component
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.account - The account object containing holdings data
+ * @param {Array} props.account.holdings - Array of holding objects with ticker, units, and unitPrice
+ * @returns {JSX.Element} - Rendered component
+ */
 export default function HoldingTable({ account }) {
-  // State Variables
-  const [holdings, setHoldings] = useState([]); // Stores holdings
-  const [loading, setLoading] = useState(true); // Tracks loading state
-  const [filteredHoldings, setFilteredHoldings] = useState([]); // Stores Filtered holdings
+  // State for storing the original holdings data from the account
+  const [holdings, setHoldings] = useState([]);
   
-  // useEffect runs after render - here it's used to fetch data when component mounts
+  // State for tracking if data is still loading
+  const [loading, setLoading] = useState(true);
+  
+  // State for storing filtered/sorted holdings (what's actually displayed)
+  const [filteredHoldings, setFilteredHoldings] = useState([]);
+  
+  /**
+   * Effect hook to initialize holdings data from the account prop
+   * Runs when the component mounts or when the account prop changes
+   */
   useEffect(() => {
-    // Instead of fetching from API, use the holdings data from the account
+    // Instead of fetching from API, use the holdings data from the account object
     if (account && account.holdings) {
       setHoldings(account.holdings);
-      setFilteredHoldings(account.holdings);
-      setLoading(false);
+      setFilteredHoldings(account.holdings); // Initialize filtered data with all holdings
+      setLoading(false); // Data is ready, so we're no longer loading
     } else {
+      // Handle the case where account or holdings data is missing
       console.error('No holdings data found in account:', account);
-      setLoading(false);
+      setLoading(false); // Still need to set loading to false to avoid infinite loading state
     }
-  }, [account]); // Refetch if account changes
+  }, [account]); // Dependency array - re-run if account changes
 
+  /**
+   * Handles filtering and sorting of holdings data
+   * Called when the user applies filters/sorting via the FilterSort component
+   * 
+   * @param {Object} options - Filter and sort criteria
+   * @param {string} options.sortField - Field to sort by
+   * @param {string} options.sortOrder - Sort direction ('asc' or 'desc')
+   * @param {string} options.filterValue - Text to filter by
+   */
   const handleFilterSort = (options) => {
+    // Get the fields that can be searched for this data type
     const searchFields = getSearchFields('holdings');
+    
+    // Apply filtering and sorting using the utility function
     const filtered = filterAndSortItems(holdings, { ...options, searchFields });
+    
+    // Update state with the filtered/sorted data
     setFilteredHoldings(filtered);
   };
   
-  // Loading state - if the data is still loading, we show a loading spinner
+  // If data is still loading, show a loading spinner
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -42,18 +81,24 @@ export default function HoldingTable({ account }) {
     );
   }
   
-  // Calculate total value of all holdings
+  /**
+   * Calculate the total value of all holdings by summing (units × unitPrice) for each holding
+   * This is a derived value calculated during render, not stored in state
+   */
   const totalValue = filteredHoldings.reduce((sum, holding) => 
     sum + (holding.units * holding.unitPrice), 0
   );
   
-  // If the data is loaded, we show the holdings table
+  // Render the holdings table with filter controls
   return (
     <Box>
+      {/* Filter and sort controls */}
       <FilterSort onFilterSort={handleFilterSort} type="holdings" />
       
+      {/* Holdings data table */}
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }}>
+          {/* Table header */}
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
               <TableCell><strong>Ticker</strong></TableCell>
@@ -62,7 +107,10 @@ export default function HoldingTable({ account }) {
               <TableCell align="right"><strong>Value</strong></TableCell>
             </TableRow>
           </TableHead>
+          
+          {/* Table body with holdings data */}
           <TableBody>
+            {/* Map through filtered holdings to create table rows */}
             {filteredHoldings.map((holding, index) => (
               <TableRow key={index} hover>
                 <TableCell>{holding.ticker}</TableCell>
@@ -71,6 +119,8 @@ export default function HoldingTable({ account }) {
                 <TableCell align="right">{formatCurrency(holding.units * holding.unitPrice)}</TableCell>
               </TableRow>
             ))}
+            
+            {/* Total row at the bottom */}
             <TableRow>
               <TableCell colSpan={3} align="right"><strong>Total:</strong></TableCell>
               <TableCell align="right"><strong>{formatCurrency(totalValue)}</strong></TableCell>
