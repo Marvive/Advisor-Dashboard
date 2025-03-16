@@ -13,6 +13,8 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
   Paper, Box, CircularProgress
 } from '@mui/material';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterSort from './FilterSort';
 import { formatCurrency } from '../utils/formatters';
 import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
@@ -34,6 +36,10 @@ export default function HoldingTable({ account }) {
   
   // State for storing filtered/sorted holdings (what's actually displayed)
   const [filteredHoldings, setFilteredHoldings] = useState([]);
+  
+  // State for column sorting
+  const [sortField, setSortField] = useState('');
+  const [sortDirection, setSortDirection] = useState('asc');
   
   /**
    * Effect hook to initialize holdings data from the account prop
@@ -62,6 +68,10 @@ export default function HoldingTable({ account }) {
    * @param {string} options.filterValue - Text to filter by
    */
   const handleFilterSort = (options) => {
+    // Update sort state
+    setSortField(options.sortField);
+    setSortDirection(options.sortOrder);
+    
     // Get the fields that can be searched for this data type
     const searchFields = getSearchFields('holdings');
     
@@ -71,6 +81,64 @@ export default function HoldingTable({ account }) {
     // Update state with the filtered/sorted data
     setFilteredHoldings(filtered);
   };
+  
+  /**
+   * Handles sorting when a column header is clicked
+   * 
+   * @param {string} field - The field to sort by
+   */
+  const handleHeaderSort = (field) => {
+    let newDirection = 'asc';
+    
+    // If clicking the same field, toggle direction
+    if (field === sortField) {
+      newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    }
+    
+    // Update sort state
+    setSortField(field);
+    setSortDirection(newDirection);
+    
+    // Apply sorting
+    const searchFields = getSearchFields('holdings');
+    const filtered = filterAndSortItems(holdings, { 
+      sortField: field, 
+      sortOrder: newDirection, 
+      filterValue: '', 
+      searchFields 
+    });
+    setFilteredHoldings(filtered);
+  };
+  
+  /**
+   * Renders a sortable column header
+   * 
+   * @param {string} field - The field to sort by when clicked
+   * @param {string} label - The display text for the header
+   * @param {string} align - Text alignment ('left', 'right', 'center')
+   * @returns {JSX.Element} - The rendered header cell
+   */
+  const renderSortableHeader = (field, label, align = 'left') => (
+    <TableCell 
+      align={align}
+      onClick={() => handleHeaderSort(field)}
+      sx={{ 
+        cursor: 'pointer',
+        '&:hover': {
+          backgroundColor: 'rgba(0, 0, 0, 0.04)'
+        }
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center' }}>
+        <strong>{label}</strong>
+        {sortField === field && (
+          sortDirection === 'asc' 
+            ? <ArrowUpwardIcon fontSize="small" sx={{ ml: 0.5 }} />
+            : <ArrowDownwardIcon fontSize="small" sx={{ ml: 0.5 }} />
+        )}
+      </Box>
+    </TableCell>
+  );
   
   // If data is still loading, show a loading spinner
   if (loading) {
@@ -101,9 +169,9 @@ export default function HoldingTable({ account }) {
           {/* Table header */}
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell><strong>Ticker</strong></TableCell>
-              <TableCell align="right"><strong>Units</strong></TableCell>
-              <TableCell align="right"><strong>Unit Price</strong></TableCell>
+              {renderSortableHeader('ticker', 'Ticker')}
+              {renderSortableHeader('units', 'Units', 'right')}
+              {renderSortableHeader('unitPrice', 'Unit Price', 'right')}
               <TableCell align="right"><strong>Value</strong></TableCell>
             </TableRow>
           </TableHead>

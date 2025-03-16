@@ -4,6 +4,8 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
   Paper, Typography, Box, Button, CircularProgress
 } from '@mui/material';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AccountTable from './AccountTable';
 import FilterSort from './FilterSort';
 import { formatCurrency } from '../utils/formatters';
@@ -15,6 +17,10 @@ export default function AdvisorTable() {
   const [loading, setLoading] = useState(true); // Loading state
   const [selectedAdvisor, setSelectedAdvisor] = useState(null); // Selected advisor
   const [filteredAdvisors, setFilteredAdvisors] = useState([]); // Filtered advisors
+  
+  // State for column sorting
+  const [sortField, setSortField] = useState('');
+  const [sortDirection, setSortDirection] = useState('asc');
   
   // useEffect runs after render - here it's used to fetch data after the component mounts
   useEffect(() => {
@@ -50,10 +56,59 @@ export default function AdvisorTable() {
   
   // This function filters and sorts the advisors
   const handleFilterSort = (options) => {
+    setSortField(options.sortField);
+    setSortDirection(options.sortOrder);
     const searchFields = getSearchFields('advisors');
     const filtered = filterAndSortItems(advisors, { ...options, searchFields });
     setFilteredAdvisors(filtered);
   };
+  
+  // Handle column header click for sorting
+  const handleHeaderSort = (field) => {
+    let newDirection = 'asc';
+    
+    // If clicking the same field, toggle direction
+    if (field === sortField) {
+      newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    }
+    
+    // Update sort state
+    setSortField(field);
+    setSortDirection(newDirection);
+    
+    // Apply sorting
+    const searchFields = getSearchFields('advisors');
+    const filtered = filterAndSortItems(advisors, { 
+      sortField: field, 
+      sortOrder: newDirection, 
+      filterValue: '', 
+      searchFields 
+    });
+    setFilteredAdvisors(filtered);
+  };
+  
+  // Render a sortable column header
+  const renderSortableHeader = (field, label, align = 'left') => (
+    <TableCell 
+      align={align}
+      onClick={() => handleHeaderSort(field)}
+      sx={{ 
+        cursor: 'pointer',
+        '&:hover': {
+          backgroundColor: 'rgba(0, 0, 0, 0.04)'
+        }
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center' }}>
+        <strong>{label}</strong>
+        {sortField === field && (
+          sortDirection === 'asc' 
+            ? <ArrowUpwardIcon fontSize="small" sx={{ ml: 0.5 }} />
+            : <ArrowDownwardIcon fontSize="small" sx={{ ml: 0.5 }} />
+        )}
+      </Box>
+    </TableCell>
+  );
   
   // Loading state - if the data is still loading, we show a loading spinner
   if (loading) {
@@ -92,10 +147,10 @@ export default function AdvisorTable() {
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell><strong>Advisor Name</strong></TableCell>
-              <TableCell><strong>Email</strong></TableCell>
-              <TableCell align="right"><strong>Accounts</strong></TableCell>
-              <TableCell align="right"><strong>Total Assets</strong></TableCell>
+              {renderSortableHeader('name', 'Advisor Name')}
+              {renderSortableHeader('email', 'Email')}
+              {renderSortableHeader('accountCount', 'Accounts', 'right')}
+              {renderSortableHeader('totalAssets', 'Total Assets', 'right')}
               <TableCell align="center"><strong>Actions</strong></TableCell>
             </TableRow>
           </TableHead>
