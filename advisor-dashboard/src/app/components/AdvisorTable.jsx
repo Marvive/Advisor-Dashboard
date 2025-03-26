@@ -10,6 +10,8 @@ import AccountTable from './AccountTable';
 import FilterSort from './FilterSort';
 import { formatCurrency } from '../utils/formatters';
 import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
+import LastViewedHistory from './LastViewedHistory';
+
 
 export default function AdvisorTable() {
   // state variables to store the advisors, loading state, selected advisor, and filtered advisors
@@ -17,6 +19,9 @@ export default function AdvisorTable() {
   const [loading, setLoading] = useState(true); // Loading state
   const [selectedAdvisor, setSelectedAdvisor] = useState(null); // Selected advisor
   const [filteredAdvisors, setFilteredAdvisors] = useState([]); // Filtered advisors
+  
+  // Change this to track viewed accounts instead of advisors
+  const [viewedAccounts, setViewedAccounts] = useState([]);
   
   // State for column sorting
   const [sortField, setSortField] = useState('');
@@ -87,24 +92,38 @@ export default function AdvisorTable() {
     setFilteredAdvisors(filtered);
   };
   
-  // Render a sortable column header
+  /**
+   * Renders a sortable column header for the table
+   * @param {string} field - The field name to sort by (e.g. 'name', 'email')
+   * @param {string} label - The display label for the column header
+   * @param {string} align - Text alignment ('left', 'right', 'center'), defaults to 'left'
+   * @returns {JSX.Element} A TableCell component with sorting functionality
+   */
   const renderSortableHeader = (field, label, align = 'left') => (
+    // TableCell with click handler for sorting and hover styling
     <TableCell 
-      align={align}
-      onClick={() => handleHeaderSort(field)}
+      align={align} // Controls text alignment within the cell
+      onClick={() => handleHeaderSort(field)} // Triggers sort when header is clicked
       sx={{ 
-        cursor: 'pointer',
+        cursor: 'pointer', // Shows clickable cursor on hover
         '&:hover': {
-          backgroundColor: 'rgba(0, 0, 0, 0.04)'
+          backgroundColor: 'rgba(0, 0, 0, 0.04)' // Light gray background on hover
         }
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center' }}>
+      {/* Flex container to align label and sort icon */}
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        // Dynamically set justification based on alignment prop
+        justifyContent: align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center' 
+      }}>
         <strong>{label}</strong>
+        {/* Show sort direction icon if this column is being sorted */}
         {sortField === field && (
           sortDirection === 'asc' 
-            ? <ArrowUpwardIcon fontSize="small" sx={{ ml: 0.5 }} />
-            : <ArrowDownwardIcon fontSize="small" sx={{ ml: 0.5 }} />
+            ? <ArrowUpwardIcon fontSize="small" sx={{ ml: 0.5 }} /> // Up arrow for ascending
+            : <ArrowDownwardIcon fontSize="small" sx={{ ml: 0.5 }} /> // Down arrow for descending
         )}
       </Box>
     </TableCell>
@@ -129,7 +148,11 @@ export default function AdvisorTable() {
         <Typography variant="h5" sx={{ mb: 2 }}>
           Accounts Managed by {selectedAdvisor.name}
         </Typography>
-        <AccountTable advisorId={selectedAdvisor.id} />
+        <AccountTable 
+          advisorId={selectedAdvisor.id} 
+          viewedAccounts={viewedAccounts} 
+          setViewedAccounts={setViewedAccounts} 
+        />
       </Box>
     );
   }
@@ -142,7 +165,7 @@ export default function AdvisorTable() {
       </Typography>
       
       <FilterSort onFilterSort={handleFilterSort} type="advisors" />
-      
+      <LastViewedHistory accounts={viewedAccounts} />
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }}>
           <TableHead>

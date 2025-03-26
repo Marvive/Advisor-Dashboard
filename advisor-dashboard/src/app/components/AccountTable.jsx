@@ -11,12 +11,13 @@ import FilterSort from './FilterSort';
 import { formatCurrency } from '../utils/formatters';
 import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
 
-export default function AccountTable({ advisorId }) {
+export default function AccountTable({ advisorId , viewedAccounts, setViewedAccounts}) {
   // State Variables
   const [accounts, setAccounts] = useState([]); // Stores accounts
   const [loading, setLoading] = useState(true); // Tracks loading state
   const [selectedAccount, setSelectedAccount] = useState(null); // Tracks Selected account
   const [filteredAccounts, setFilteredAccounts] = useState([]); // Stores Filtered accounts
+
   
   // State for column sorting
   const [sortField, setSortField] = useState('');
@@ -48,6 +49,7 @@ export default function AccountTable({ advisorId }) {
   const handleViewHoldings = (account) => {
     console.log("Selected account:", account); // Debug log
     setSelectedAccount(account);
+    setViewedAccounts([...viewedAccounts, account]); // Add to viewed accounts
   };
 
   // Handler for when user clicks on Back
