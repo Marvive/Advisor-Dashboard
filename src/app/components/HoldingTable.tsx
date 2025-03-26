@@ -110,15 +110,19 @@ export default function HoldingTable({ accountId, accountNumber, onBack }: Holdi
    * Called when the user applies filters/sorting via the FilterSort component
    */
   const handleFilterSort = (options: FilterSortOptions) => {
-    // Update sort state
-    setSortField(options.sortField);
-    setSortDirection(options.sortOrder);
+    // Don't update sort state from options
+    // Keep the current sort state set by column header clicks
     
     // Get the fields that can be searched for this data type
     const searchFields = getSearchFields('holdings');
     
-    // Apply filtering and sorting using the utility function
-    const filtered = filterAndSortItems(holdings, { ...options, searchFields });
+    // Apply filtering with the current sort settings
+    const filtered = filterAndSortItems(holdings, { 
+      ...options, 
+      sortField, 
+      sortOrder: sortDirection, 
+      searchFields 
+    });
     
     // Update state with the filtered/sorted data
     setFilteredHoldings(filtered);

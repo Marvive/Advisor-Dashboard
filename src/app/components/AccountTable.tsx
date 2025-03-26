@@ -65,10 +65,18 @@ export default function AccountTable({ advisorId, viewedAccounts, setViewedAccou
   };
   
   const handleFilterSort = (options: FilterSortOptions) => {
-    setSortField(options.sortField);
-    setSortDirection(options.sortOrder);
+    // Don't update sortField and sortDirection from options
+    // Keep the current sort state set by column header clicks
     const searchFields = getSearchFields('accounts');
-    const filtered = filterAndSortItems(accounts, { ...options, searchFields });
+    
+    // Apply filtering with the current sort settings
+    const filtered = filterAndSortItems(accounts, { 
+      ...options, 
+      sortField, 
+      sortOrder: sortDirection, 
+      searchFields 
+    });
+    
     setFilteredAccounts(filtered);
   };
   

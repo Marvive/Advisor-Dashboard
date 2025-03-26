@@ -1,145 +1,97 @@
 /**
  * FilterSort.tsx
  * 
- * A reusable component that provides UI controls for filtering and sorting data.
+ * A reusable component that provides UI controls for filtering data.
  * This component is used across different data views (advisors, accounts, holdings)
- * and provides a consistent interface for data manipulation.
+ * and provides a consistent interface for data filtering.
  */
 
 'use client'; // Mark as client component for Next.js
 
 import React, { useState } from 'react';
-import { Box, FormControl, InputLabel, Select, MenuItem, TextField, Button, SelectChangeEvent } from '@mui/material';
+import { Box, TextField, Button, InputAdornment } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { FilterSortProps } from '../types';
 
-interface SortOption {
-  value: string;
-  label: string;
-}
-
 /**
- * FilterSort Component
+ * FilterComponent
  * 
  * @param props - Component props
- * @param props.onFilterSort - Callback function that receives filter/sort criteria
- * @param props.type - Data type to filter/sort ('advisors', 'accounts', or 'holdings')
+ * @param props.onFilterSort - Callback function that receives filter criteria
+ * @param props.type - Data type to filter ('advisors', 'accounts', or 'holdings')
  * @returns Rendered component
  */
 export default function FilterSort({ onFilterSort, type }: FilterSortProps) {
-  // State for tracking sort field (which column to sort by)
-  const [sortField, setSortField] = useState<string>('');
-  
-  // State for tracking sort order ('asc' for ascending, 'desc' for descending)
-  // 'asc' is just a string identifier we define - it could be any value as long as
-  // the parent component understands what it means
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  
   // State for tracking filter text input
   const [filterValue, setFilterValue] = useState<string>('');
   
   /**
-   * Handles the Apply button click by passing current filter/sort criteria
+   * Handles the Apply button click by passing current filter criteria
    * to the parent component via the onFilterSort callback
    */
   const handleApply = () => {
     onFilterSort({
-      sortField,
-      sortOrder,
+      sortField: '',
+      sortOrder: 'asc',
       filterValue
     });
   };
-  
-  /**
-   * Returns the appropriate sort options based on the data type.
-   * Each option has a value (used in sorting logic) and a label (displayed to user).
-   * 
-   * @returns Array of sort option objects { value, label }
-   */
-  const getSortOptions = (): SortOption[] => {
-    switch(type) {
-      case 'advisors':
-        // Sort options for advisor data
-        return [
-          { value: 'name', label: 'Name' },
-          { value: 'totalAssets', label: 'Total Assets' },
-          { value: 'clientCount', label: 'Client Count' },
-          { value: 'accountCount', label: 'Account Count' }
-        ];
-      case 'accounts':
-        // Sort options for account data
-        return [
-          { value: 'name', label: 'Account Name' },
-          { value: 'repId', label: 'Rep ID' },
-          { value: 'accountNumber', label: 'Account Number' },
-          { value: 'custodian', label: 'Custodian' },
-          { value: 'balance', label: 'Balance' }
-        ];
-      case 'holdings':
-        // Sort options for holdings data
-        return [
-          { value: 'ticker', label: 'Ticker' },
-          { value: 'units', label: 'Units' },
-          { value: 'unitPrice', label: 'Unit Price' },
-        ];
-      default:
-        // Return empty array if type is not recognized
-        return [];
+
+  // Handle Enter key press to apply filter
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      handleApply();
     }
-  };
-
-  const handleSortFieldChange = (event: SelectChangeEvent<string>) => {
-    setSortField(event.target.value);
-  };
-
-  const handleSortOrderChange = (event: SelectChangeEvent<'asc' | 'desc'>) => {
-    setSortOrder(event.target.value as 'asc' | 'desc');
   };
   
   return (
     // Container with flex layout and spacing between elements
-    <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-end' }}>
-      {/* Sort Field Dropdown */}
-      <FormControl sx={{ minWidth: 200 }}>
-        <InputLabel>Sort By</InputLabel>
-        <Select
-          value={sortField}
-          label="Sort By"
-          onChange={handleSortFieldChange}
-        >
-          {/* Dynamically generate menu items based on data type */}
-          {getSortOptions().map(option => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      
-      {/* Sort Order Dropdown */}
-      <FormControl sx={{ minWidth: 120 }}>
-        <InputLabel>Order</InputLabel>
-        <Select
-          value={sortOrder}
-          label="Order"
-          onChange={handleSortOrderChange}
-        >
-          {/* Fixed options for sort direction */}
-          <MenuItem value="asc">Ascending</MenuItem>
-          <MenuItem value="desc">Descending</MenuItem>
-        </Select>
-      </FormControl>
-      
+    <Box sx={{ 
+      display: 'flex', 
+      gap: 2, 
+      mb: 2, 
+      alignItems: 'flex-end',
+      justifyContent: 'flex-start',
+      maxWidth: '400px'
+    }}>
       {/* Filter Text Input */}
       <TextField
         label="Filter"
         variant="outlined"
+        size="small"
         value={filterValue}
         onChange={(e) => setFilterValue(e.target.value)}
+        onKeyPress={handleKeyPress}
         placeholder="Search..."
+        sx={{ 
+          width: '300px',
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px',
+            '&:hover fieldset': {
+              borderColor: 'primary.main',
+            },
+          }
+        }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon color="action" />
+            </InputAdornment>
+          ),
+        }}
       />
       
       {/* Apply Button */}
-      <Button variant="contained" onClick={handleApply}>
+      <Button 
+        variant="contained" 
+        onClick={handleApply}
+        sx={{ 
+          borderRadius: '8px',
+          textTransform: 'none',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          height: '40px'
+        }}
+      >
         Apply
       </Button>
     </Box>

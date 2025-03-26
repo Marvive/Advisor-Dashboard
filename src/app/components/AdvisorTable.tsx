@@ -13,6 +13,7 @@ import { formatCurrency } from '../utils/formatters';
 import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
 import LastViewedHistory from './LastViewedHistory';
 import { Advisor, Account, AccountTableProps, FilterSortOptions } from '../types';
+import { useNavigation } from './Layout';
 
 export default function AdvisorTable({ advisorId, viewedAccounts = [], setViewedAccounts }: AccountTableProps) {
   // State Variables
@@ -25,6 +26,9 @@ export default function AdvisorTable({ advisorId, viewedAccounts = [], setViewed
   // State for column sorting
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  
+  // Get the setResetFunction from our navigation context
+  const { setResetFunction } = useNavigation();
   
   // useEffect runs after render - here it's used to fetch data after the component mounts
   useEffect(() => {
@@ -47,6 +51,24 @@ export default function AdvisorTable({ advisorId, viewedAccounts = [], setViewed
     fetchAdvisors();
   }, []); // Empty array means this effect only runs once after the initial render
   
+  // Set up the reset function when the component mounts
+  useEffect(() => {
+    // This function will be called when clicking the Wealth Dynamics title
+    const resetToAdvisorView = () => {
+      setSelectedAdvisor(null);
+      setSelectedAccount(null);
+      setFilteredAdvisors(advisors);
+    };
+    
+    // Register our reset function with the context
+    setResetFunction(resetToAdvisorView);
+    
+    // Clean up when component unmounts
+    return () => {
+      setResetFunction(() => {});
+    };
+  }, [advisors, setResetFunction]);
+  
   // When a user clicks "View Accounts" for an advisor, we set the selected advisor to the advisor in question
   const handleViewAccounts = (advisor: Advisor) => {
     setSelectedAdvisor(advisor);
@@ -67,10 +89,18 @@ export default function AdvisorTable({ advisorId, viewedAccounts = [], setViewed
   
   // This function filters and sorts the advisors
   const handleFilterSort = (options: FilterSortOptions) => {
-    setSortField(options.sortField);
-    setSortDirection(options.sortOrder);
+    // Don't update sortField and sortDirection from options
+    // Keep the current sort state set by column header clicks
     const searchFields = getSearchFields('advisors');
-    const filtered = filterAndSortItems(advisors, { ...options, searchFields });
+    
+    // Apply filtering with the current sort settings
+    const filtered = filterAndSortItems(advisors, { 
+      ...options, 
+      sortField, 
+      sortOrder: sortDirection, 
+      searchFields 
+    });
+    
     setFilteredAdvisors(filtered);
   };
   
