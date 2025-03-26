@@ -6,22 +6,21 @@ import {
 } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import HoldingTable from './HoldingTable';
 import AccountTable from './AccountTable';
 import FilterSort from './FilterSort';
 import { formatCurrency } from '../utils/formatters';
 import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
 import LastViewedHistory from './LastViewedHistory';
-import { Advisor, Account, FilterSortOptions } from '../types';
+import { Advisor, Account, AccountTableProps, FilterSortOptions } from '../types';
 
-export default function AdvisorTable() {
-  // state variables to store the advisors, loading state, selected advisor, and filtered advisors
+export default function AdvisorTable({ advisorId, viewedAccounts = [], setViewedAccounts }: AccountTableProps) {
+  // State Variables
   const [advisors, setAdvisors] = useState<Advisor[]>([]); // List of advisors
   const [loading, setLoading] = useState<boolean>(true); // Loading state
   const [selectedAdvisor, setSelectedAdvisor] = useState<Advisor | null>(null); // Selected advisor
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null); // Selected account from history
   const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]); // Filtered advisors
-  
-  // Change this to track viewed accounts instead of advisors
-  const [viewedAccounts, setViewedAccounts] = useState<Account[]>([]);
   
   // State for column sorting
   const [sortField, setSortField] = useState<string>('');
@@ -56,7 +55,14 @@ export default function AdvisorTable() {
   // When a user clicks "Back" from the AccountTable, we set the selected advisor to null
   const handleBack = () => {
     setSelectedAdvisor(null); // Clears the selected advisor and returns
+    setSelectedAccount(null); // Also clear any selected account
     setFilteredAdvisors(advisors); // Reset filtered advisors to show all advisors
+  };
+  
+  // When a user clicks on an account in the history list
+  const handleViewAccount = (account: Account) => {
+    console.log("Viewing account from history:", account.name);
+    setSelectedAccount(account);
   };
   
   // This function filters and sorts the advisors
@@ -138,6 +144,32 @@ export default function AdvisorTable() {
     );
   }
 
+  // If a user has selected an account from history, we show the holdings for that account
+  if (selectedAccount) {
+    console.log("Rendering HoldingTable with accountId:", selectedAccount.id);
+    console.log("Selected account details:", {
+      id: selectedAccount.id,
+      name: selectedAccount.name,
+      number: selectedAccount.number,
+      accountNumber: selectedAccount.accountNumber
+    });
+    return (
+      <Box>
+        <Button variant="outlined" onClick={handleBack} sx={{ mb: 2 }}>
+          Back to Advisors
+        </Button>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          Holdings for {selectedAccount.name}
+        </Typography>
+        <HoldingTable 
+          accountId={selectedAccount.id} 
+          accountNumber={selectedAccount.number} 
+          onBack={handleBack} 
+        />
+      </Box>
+    );
+  }
+  
   // If a user has selected an advisor, we show the accounts for that advisor
   if (selectedAdvisor) {
     return (
@@ -165,7 +197,12 @@ export default function AdvisorTable() {
       </Typography>
       
       <FilterSort onFilterSort={handleFilterSort} type="advisors" />
-      <LastViewedHistory accounts={viewedAccounts} />
+      {viewedAccounts && (
+        <LastViewedHistory 
+          accounts={viewedAccounts} 
+          onAccountClick={handleViewAccount} 
+        />
+      )}
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }}>
           <TableHead>

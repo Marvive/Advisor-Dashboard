@@ -52,8 +52,8 @@ export default function AccountTable({ advisorId, viewedAccounts, setViewedAccou
     console.log("Account ID type:", typeof account.id, "Value:", account.id);
     setSelectedAccount(account);
     
-    // Make sure we don't add the same account multiple times
-    if (!viewedAccounts.some(a => a.id === account.id)) {
+    // Make sure we don't add the same account multiple times and check if setViewedAccounts exists
+    if (setViewedAccounts && viewedAccounts && !viewedAccounts.some(a => a.id === account.id)) {
       setViewedAccounts(prev => [...prev, account]);
     }
   };

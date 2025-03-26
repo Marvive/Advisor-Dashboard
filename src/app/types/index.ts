@@ -44,9 +44,9 @@ export interface FilterSortProps {
 }
 
 export interface AccountTableProps {
-  advisorId: string;
-  viewedAccounts: Account[];
-  setViewedAccounts: React.Dispatch<React.SetStateAction<Account[]>>;
+  advisorId?: string;
+  viewedAccounts?: Account[];
+  setViewedAccounts?: React.Dispatch<React.SetStateAction<Account[]>>;
 }
 
 export interface HoldingTableProps {
@@ -56,5 +56,6 @@ export interface HoldingTableProps {
 }
 
 export interface LastViewedHistoryProps {
-  accounts: Account[];
+  accounts?: Account[];
+  onAccountClick: (account: Account) => void;
 } 
