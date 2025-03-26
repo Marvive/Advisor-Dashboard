@@ -1,5 +1,5 @@
 'use client'; // tells next.js to render this component on the client
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
   Paper, Typography, Box, Button, CircularProgress
@@ -11,21 +11,21 @@ import FilterSort from './FilterSort';
 import { formatCurrency } from '../utils/formatters';
 import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
 import LastViewedHistory from './LastViewedHistory';
-
+import { Advisor, Account, FilterSortOptions } from '../types';
 
 export default function AdvisorTable() {
   // state variables to store the advisors, loading state, selected advisor, and filtered advisors
-  const [advisors, setAdvisors] = useState([]); // List of advisors
-  const [loading, setLoading] = useState(true); // Loading state
-  const [selectedAdvisor, setSelectedAdvisor] = useState(null); // Selected advisor
-  const [filteredAdvisors, setFilteredAdvisors] = useState([]); // Filtered advisors
+  const [advisors, setAdvisors] = useState<Advisor[]>([]); // List of advisors
+  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const [selectedAdvisor, setSelectedAdvisor] = useState<Advisor | null>(null); // Selected advisor
+  const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]); // Filtered advisors
   
   // Change this to track viewed accounts instead of advisors
-  const [viewedAccounts, setViewedAccounts] = useState([]);
+  const [viewedAccounts, setViewedAccounts] = useState<Account[]>([]);
   
   // State for column sorting
-  const [sortField, setSortField] = useState('');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortField, setSortField] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   
   // useEffect runs after render - here it's used to fetch data after the component mounts
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function AdvisorTable() {
   }, []); // Empty array means this effect only runs once after the initial render
   
   // When a user clicks "View Accounts" for an advisor, we set the selected advisor to the advisor in question
-  const handleViewAccounts = (advisor) => {
+  const handleViewAccounts = (advisor: Advisor) => {
     setSelectedAdvisor(advisor);
   };
 
@@ -60,7 +60,7 @@ export default function AdvisorTable() {
   };
   
   // This function filters and sorts the advisors
-  const handleFilterSort = (options) => {
+  const handleFilterSort = (options: FilterSortOptions) => {
     setSortField(options.sortField);
     setSortDirection(options.sortOrder);
     const searchFields = getSearchFields('advisors');
@@ -69,8 +69,8 @@ export default function AdvisorTable() {
   };
   
   // Handle column header click for sorting
-  const handleHeaderSort = (field) => {
-    let newDirection = 'asc';
+  const handleHeaderSort = (field: string) => {
+    let newDirection: 'asc' | 'desc' = 'asc';
     
     // If clicking the same field, toggle direction
     if (field === sortField) {
@@ -99,7 +99,7 @@ export default function AdvisorTable() {
    * @param {string} align - Text alignment ('left', 'right', 'center'), defaults to 'left'
    * @returns {JSX.Element} A TableCell component with sorting functionality
    */
-  const renderSortableHeader = (field, label, align = 'left') => (
+  const renderSortableHeader = (field: string, label: string, align: 'left' | 'right' | 'center' = 'left') => (
     // TableCell with click handler for sorting and hover styling
     <TableCell 
       align={align} // Controls text alignment within the cell

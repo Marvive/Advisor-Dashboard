@@ -1,7 +1,12 @@
 'use client';
+import React from 'react';
 import { Container, CssBaseline, Box, AppBar, Toolbar, Typography } from '@mui/material';
 
-export default function Layout({ children }) {
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
   return (
     <>
       <CssBaseline />

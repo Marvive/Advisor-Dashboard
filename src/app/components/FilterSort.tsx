@@ -1,5 +1,5 @@
 /**
- * FilterSort.jsx
+ * FilterSort.tsx
  * 
  * A reusable component that provides UI controls for filtering and sorting data.
  * This component is used across different data views (advisors, accounts, holdings)
@@ -8,28 +8,34 @@
 
 'use client'; // Mark as client component for Next.js
 
-import { useState } from 'react';
-import { Box, FormControl, InputLabel, Select, MenuItem, TextField, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, FormControl, InputLabel, Select, MenuItem, TextField, Button, SelectChangeEvent } from '@mui/material';
+import { FilterSortProps } from '../types';
+
+interface SortOption {
+  value: string;
+  label: string;
+}
 
 /**
  * FilterSort Component
  * 
- * @param {Object} props - Component props
- * @param {Function} props.onFilterSort - Callback function that receives filter/sort criteria
- * @param {string} props.type - Data type to filter/sort ('advisors', 'accounts', or 'holdings')
- * @returns {JSX.Element} - Rendered component
+ * @param props - Component props
+ * @param props.onFilterSort - Callback function that receives filter/sort criteria
+ * @param props.type - Data type to filter/sort ('advisors', 'accounts', or 'holdings')
+ * @returns Rendered component
  */
-export default function FilterSort({ onFilterSort, type }) {
+export default function FilterSort({ onFilterSort, type }: FilterSortProps) {
   // State for tracking sort field (which column to sort by)
-  const [sortField, setSortField] = useState('');
+  const [sortField, setSortField] = useState<string>('');
   
   // State for tracking sort order ('asc' for ascending, 'desc' for descending)
   // 'asc' is just a string identifier we define - it could be any value as long as
   // the parent component understands what it means
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   
   // State for tracking filter text input
-  const [filterValue, setFilterValue] = useState('');
+  const [filterValue, setFilterValue] = useState<string>('');
   
   /**
    * Handles the Apply button click by passing current filter/sort criteria
@@ -47,9 +53,9 @@ export default function FilterSort({ onFilterSort, type }) {
    * Returns the appropriate sort options based on the data type.
    * Each option has a value (used in sorting logic) and a label (displayed to user).
    * 
-   * @returns {Array} Array of sort option objects { value, label }
+   * @returns Array of sort option objects { value, label }
    */
-  const getSortOptions = () => {
+  const getSortOptions = (): SortOption[] => {
     switch(type) {
       case 'advisors':
         // Sort options for advisor data
@@ -64,7 +70,7 @@ export default function FilterSort({ onFilterSort, type }) {
         return [
           { value: 'name', label: 'Account Name' },
           { value: 'repId', label: 'Rep ID' },
-          { value: 'number', label: 'Account Number' },
+          { value: 'accountNumber', label: 'Account Number' },
           { value: 'custodian', label: 'Custodian' },
           { value: 'balance', label: 'Balance' }
         ];
@@ -80,6 +86,14 @@ export default function FilterSort({ onFilterSort, type }) {
         return [];
     }
   };
+
+  const handleSortFieldChange = (event: SelectChangeEvent<string>) => {
+    setSortField(event.target.value);
+  };
+
+  const handleSortOrderChange = (event: SelectChangeEvent<'asc' | 'desc'>) => {
+    setSortOrder(event.target.value as 'asc' | 'desc');
+  };
   
   return (
     // Container with flex layout and spacing between elements
@@ -90,7 +104,7 @@ export default function FilterSort({ onFilterSort, type }) {
         <Select
           value={sortField}
           label="Sort By"
-          onChange={(e) => setSortField(e.target.value)}
+          onChange={handleSortFieldChange}
         >
           {/* Dynamically generate menu items based on data type */}
           {getSortOptions().map(option => (
@@ -107,7 +121,7 @@ export default function FilterSort({ onFilterSort, type }) {
         <Select
           value={sortOrder}
           label="Order"
-          onChange={(e) => setSortOrder(e.target.value)}
+          onChange={handleSortOrderChange}
         >
           {/* Fixed options for sort direction */}
           <MenuItem value="asc">Ascending</MenuItem>

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
   Paper, Typography, Box, Button, CircularProgress
@@ -10,18 +10,19 @@ import HoldingTable from './HoldingTable';
 import FilterSort from './FilterSort';
 import { formatCurrency } from '../utils/formatters';
 import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
+import { Account, AccountTableProps, FilterSortOptions } from '../types';
 
-export default function AccountTable({ advisorId , viewedAccounts, setViewedAccounts}) {
+export default function AccountTable({ advisorId, viewedAccounts, setViewedAccounts }: AccountTableProps) {
   // State Variables
-  const [accounts, setAccounts] = useState([]); // Stores accounts
-  const [loading, setLoading] = useState(true); // Tracks loading state
-  const [selectedAccount, setSelectedAccount] = useState(null); // Tracks Selected account
-  const [filteredAccounts, setFilteredAccounts] = useState([]); // Stores Filtered accounts
+  const [accounts, setAccounts] = useState<Account[]>([]); // Stores accounts
+  const [loading, setLoading] = useState<boolean>(true); // Tracks loading state
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null); // Tracks Selected account
+  const [filteredAccounts, setFilteredAccounts] = useState<Account[]>([]); // Stores Filtered accounts
 
   
   // State for column sorting
-  const [sortField, setSortField] = useState('');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortField, setSortField] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   
   // useEffect runs after render - here it's used to fetch data when component mounts
   useEffect(() => {
@@ -46,10 +47,15 @@ export default function AccountTable({ advisorId , viewedAccounts, setViewedAcco
   }, [advisorId]); // Refetch if advisorId changes
   
   // Handler for when user clicks on View Holdings
-  const handleViewHoldings = (account) => {
-    console.log("Selected account:", account); // Debug log
+  const handleViewHoldings = (account: Account) => {
+    console.log("Selected account:", account);
+    console.log("Account ID type:", typeof account.id, "Value:", account.id);
     setSelectedAccount(account);
-    setViewedAccounts([...viewedAccounts, account]); // Add to viewed accounts
+    
+    // Make sure we don't add the same account multiple times
+    if (!viewedAccounts.some(a => a.id === account.id)) {
+      setViewedAccounts(prev => [...prev, account]);
+    }
   };
 
   // Handler for when user clicks on Back
@@ -58,7 +64,7 @@ export default function AccountTable({ advisorId , viewedAccounts, setViewedAcco
     setFilteredAccounts(accounts); // Reset filtered accounts to show all accounts
   };
   
-  const handleFilterSort = (options) => {
+  const handleFilterSort = (options: FilterSortOptions) => {
     setSortField(options.sortField);
     setSortDirection(options.sortOrder);
     const searchFields = getSearchFields('accounts');
@@ -67,8 +73,8 @@ export default function AccountTable({ advisorId , viewedAccounts, setViewedAcco
   };
   
   // Handle column header click for sorting
-  const handleHeaderSort = (field) => {
-    let newDirection = 'asc';
+  const handleHeaderSort = (field: string) => {
+    let newDirection: 'asc' | 'desc' = 'asc';
     
     // If clicking the same field, toggle direction
     if (field === sortField) {
@@ -91,7 +97,7 @@ export default function AccountTable({ advisorId , viewedAccounts, setViewedAcco
   };
   
   // Render a sortable column header
-  const renderSortableHeader = (field, label, align = 'left') => (
+  const renderSortableHeader = (field: string, label: string, align: 'left' | 'right' | 'center' = 'left') => (
     <TableCell 
       align={align}
       onClick={() => handleHeaderSort(field)}
@@ -124,6 +130,13 @@ export default function AccountTable({ advisorId , viewedAccounts, setViewedAcco
   
   // If a user has selected an account, we show the holdings for that account
   if (selectedAccount) {
+    console.log("Rendering HoldingTable with accountId:", selectedAccount.id);
+    console.log("Selected account details:", {
+      id: selectedAccount.id,
+      name: selectedAccount.name,
+      number: selectedAccount.number,
+      accountNumber: selectedAccount.accountNumber
+    });
     return (
       <Box>
         <Button variant="outlined" onClick={handleBack} sx={{ mb: 2 }}>
@@ -132,7 +145,11 @@ export default function AccountTable({ advisorId , viewedAccounts, setViewedAcco
         <Typography variant="h5" sx={{ mb: 2 }}>
           Holdings for {selectedAccount.name}
         </Typography>
-        <HoldingTable account={selectedAccount} />
+        <HoldingTable 
+          accountId={selectedAccount.id} 
+          accountNumber={selectedAccount.number} 
+          onBack={handleBack} 
+        />
       </Box>
     );
   }
@@ -148,7 +165,7 @@ export default function AccountTable({ advisorId , viewedAccounts, setViewedAcco
             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
               {renderSortableHeader('name', 'Account Name')}
               {renderSortableHeader('repId', 'Rep ID')}
-              {renderSortableHeader('number', 'Account Number')}
+              {renderSortableHeader('accountNumber', 'Account Number')}
               {renderSortableHeader('custodian', 'Custodian')}
               {renderSortableHeader('balance', 'Balance', 'right')}
               <TableCell align="center"><strong>Actions</strong></TableCell>
@@ -156,10 +173,10 @@ export default function AccountTable({ advisorId , viewedAccounts, setViewedAcco
           </TableHead>
           <TableBody>
             {filteredAccounts.map((account) => (
-              <TableRow key={account.number} hover>
+              <TableRow key={account.id} hover>
                 <TableCell>{account.name}</TableCell>
                 <TableCell>{account.repId}</TableCell>
-                <TableCell>{account.number}</TableCell>
+                <TableCell>{account.accountNumber}</TableCell>
                 <TableCell>{account.custodian}</TableCell>
                 <TableCell align="right">{formatCurrency(account.balance)}</TableCell>
                 <TableCell align="center">

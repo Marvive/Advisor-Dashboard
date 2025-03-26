@@ -1,5 +1,5 @@
 /**
- * HoldingTable.jsx
+ * HoldingTable.tsx
  * 
  * A component that displays a table of financial holdings for a specific account.
  * It shows ticker symbols, units, unit prices, and calculated values with a total at the bottom.
@@ -8,66 +8,108 @@
 
 'use client'; // Mark as client component for Next.js
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-  Paper, Box, CircularProgress
+  Paper, Box, CircularProgress, Typography, Button
 } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterSort from './FilterSort';
 import { formatCurrency } from '../utils/formatters';
 import { getSearchFields, filterAndSortItems } from '../utils/tabHelpers';
+import { Holding, HoldingTableProps, FilterSortOptions } from '../types';
+
+// Interface for API response structure
+interface ApiHolding {
+  id: number;
+  accountId: number;
+  ticker: string;
+  securityName?: string;
+  assetClass?: string;
+  shares: number;
+  price: number;
+  value: number;
+}
 
 /**
  * HoldingTable Component
  * 
- * @param {Object} props - Component props
- * @param {Object} props.account - The account object containing holdings data
- * @param {Array} props.account.holdings - Array of holding objects with ticker, units, and unitPrice
- * @returns {JSX.Element} - Rendered component
+ * @param props - Component props
+ * @param props.accountId - The ID of the account to display holdings for
+ * @param props.accountNumber - The account number to help identify the right account
+ * @param props.onBack - Callback function to return to the previous view
+ * @returns Rendered component
  */
-export default function HoldingTable({ account }) {
+export default function HoldingTable({ accountId, accountNumber, onBack }: HoldingTableProps) {
   // State for storing the original holdings data from the account
-  const [holdings, setHoldings] = useState([]);
+  const [holdings, setHoldings] = useState<Holding[]>([]);
   
   // State for tracking if data is still loading
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   
   // State for storing filtered/sorted holdings (what's actually displayed)
-  const [filteredHoldings, setFilteredHoldings] = useState([]);
+  const [filteredHoldings, setFilteredHoldings] = useState<Holding[]>([]);
   
   // State for column sorting
-  const [sortField, setSortField] = useState('');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortField, setSortField] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   
   /**
-   * Effect hook to initialize holdings data from the account prop
-   * Runs when the component mounts or when the account prop changes
+   * Effect hook to fetch holdings data for the account
+   * Runs when the component mounts or when the accountId prop changes
    */
   useEffect(() => {
-    // Instead of fetching from API, use the holdings data from the account object
-    if (account && account.holdings) {
-      setHoldings(account.holdings);
-      setFilteredHoldings(account.holdings); // Initialize filtered data with all holdings
-      setLoading(false); // Data is ready, so we're no longer loading
+    console.log("HoldingTable useEffect - accountId:", accountId, "accountNumber:", accountNumber);
+    
+    const fetchHoldings = async () => {
+      try {
+        // Include accountNumber for more reliable account lookup
+        const url = `/api/holdings?accountId=${accountId}&accountNumber=${accountNumber}`;
+        console.log("Fetching holdings from:", url);
+        const response = await fetch(url);
+        const apiData: ApiHolding[] = await response.json();
+        console.log("API response data:", apiData, "length:", apiData.length);
+        
+        if (apiData.length === 0) {
+          console.warn("No holdings found for accountId:", accountId, "accountNumber:", accountNumber);
+          setLoading(false);
+          return;
+        }
+        
+        // Map API data to the Holding interface structure
+        const mappedHoldings: Holding[] = apiData.map(item => ({
+          id: String(item.id),
+          accountId: String(item.accountId),
+          ticker: item.ticker,
+          units: item.shares,
+          unitPrice: item.price,
+          totalValue: item.value
+        }));
+        
+        console.log("Mapped holdings:", mappedHoldings);
+        setHoldings(mappedHoldings);
+        setFilteredHoldings(mappedHoldings);
+      } catch (error) {
+        console.error('Error fetching holdings:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (accountId && accountNumber) {
+      fetchHoldings();
     } else {
-      // Handle the case where account or holdings data is missing
-      console.error('No holdings data found in account:', account);
-      setLoading(false); // Still need to set loading to false to avoid infinite loading state
+      console.error("Missing accountId or accountNumber in HoldingTable");
+      setLoading(false);
     }
-  }, [account]); // Dependency array - re-run if account changes
+  }, [accountId, accountNumber]); // Dependency array - re-run if accountId or accountNumber changes
 
   /**
    * Handles filtering and sorting of holdings data
    * Called when the user applies filters/sorting via the FilterSort component
-   * 
-   * @param {Object} options - Filter and sort criteria
-   * @param {string} options.sortField - Field to sort by
-   * @param {string} options.sortOrder - Sort direction ('asc' or 'desc')
-   * @param {string} options.filterValue - Text to filter by
    */
-  const handleFilterSort = (options) => {
+  const handleFilterSort = (options: FilterSortOptions) => {
     // Update sort state
     setSortField(options.sortField);
     setSortDirection(options.sortOrder);
@@ -85,10 +127,10 @@ export default function HoldingTable({ account }) {
   /**
    * Handles sorting when a column header is clicked
    * 
-   * @param {string} field - The field to sort by
+   * @param field - The field to sort by
    */
-  const handleHeaderSort = (field) => {
-    let newDirection = 'asc';
+  const handleHeaderSort = (field: string) => {
+    let newDirection: 'asc' | 'desc' = 'asc';
     
     // If clicking the same field, toggle direction
     if (field === sortField) {
@@ -113,12 +155,12 @@ export default function HoldingTable({ account }) {
   /**
    * Renders a sortable column header
    * 
-   * @param {string} field - The field to sort by when clicked
-   * @param {string} label - The display text for the header
-   * @param {string} align - Text alignment ('left', 'right', 'center')
-   * @returns {JSX.Element} - The rendered header cell
+   * @param field - The field to sort by when clicked
+   * @param label - The display text for the header
+   * @param align - Text alignment ('left', 'right', 'center')
+   * @returns The rendered header cell
    */
-  const renderSortableHeader = (field, label, align = 'left') => (
+  const renderSortableHeader = (field: string, label: string, align: 'left' | 'right' | 'center' = 'left') => (
     <TableCell 
       align={align}
       onClick={() => handleHeaderSort(field)}
@@ -149,12 +191,30 @@ export default function HoldingTable({ account }) {
     );
   }
   
+  // If no holdings were found, show a message
+  if (holdings.length === 0) {
+    return (
+      <Box sx={{ mt: 4, textAlign: 'center' }}>
+        <Typography variant="h6">
+          No holdings found for this account.
+        </Typography>
+        <Button 
+          variant="contained" 
+          onClick={onBack} 
+          sx={{ mt: 2 }}
+        >
+          Back to Accounts
+        </Button>
+      </Box>
+    );
+  }
+  
   /**
-   * Calculate the total value of all holdings by summing (units × unitPrice) for each holding
+   * Calculate the total value of all holdings by summing the totalValue for each holding
    * This is a derived value calculated during render, not stored in state
    */
   const totalValue = filteredHoldings.reduce((sum, holding) => 
-    sum + (holding.units * holding.unitPrice), 0
+    sum + holding.totalValue, 0
   );
   
   // Render the holdings table with filter controls
@@ -179,12 +239,12 @@ export default function HoldingTable({ account }) {
           {/* Table body with holdings data */}
           <TableBody>
             {/* Map through filtered holdings to create table rows */}
-            {filteredHoldings.map((holding, index) => (
-              <TableRow key={index} hover>
+            {filteredHoldings.map((holding) => (
+              <TableRow key={holding.id} hover>
                 <TableCell>{holding.ticker}</TableCell>
                 <TableCell align="right">{holding.units.toLocaleString()}</TableCell>
                 <TableCell align="right">${holding.unitPrice.toFixed(2)}</TableCell>
-                <TableCell align="right">{formatCurrency(holding.units * holding.unitPrice)}</TableCell>
+                <TableCell align="right">{formatCurrency(holding.totalValue)}</TableCell>
               </TableRow>
             ))}
             
