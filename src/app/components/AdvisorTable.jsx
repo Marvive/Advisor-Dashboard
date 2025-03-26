@@ -161,7 +161,7 @@ export default function AdvisorTable() {
   return (
     <Box>
       <Typography variant="h4" sx={{ mb: 3 }}>
-        Compound Planning - Advisor Dashboard
+        Wealth Dynamics - Advisor Dashboard
       </Typography>
       
       <FilterSort onFilterSort={handleFilterSort} type="advisors" />

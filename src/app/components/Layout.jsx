@@ -8,7 +8,7 @@ export default function Layout({ children }) {
       <AppBar position="static" sx={{ mb: 4 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Compound Planning
+            Wealth Dynamics
           </Typography>
         </Toolbar>
       </AppBar>

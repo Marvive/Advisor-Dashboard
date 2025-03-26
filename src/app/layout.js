@@ -7,8 +7,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Advisor Dashboard - Compound Planning",
-  description: "Dashboard for financial advisors at Compound Planning",
+  title: "Advisor Dashboard - Wealth Dynamics",
+  description: "Dashboard for financial advisors at Wealth Dynamics",
 };
 
 export default function RootLayout({ children }) {
