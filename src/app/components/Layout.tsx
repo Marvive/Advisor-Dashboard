@@ -1,5 +1,5 @@
 'use client';
-import React, { useContext, createContext } from 'react';
+import React, { useContext, createContext, useCallback } from 'react';
 import { Container, CssBaseline, Box, AppBar, Toolbar, Typography } from '@mui/material';
 
 // Create a context for the navigation state
@@ -21,13 +21,14 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
   // Function to reset to advisor view - will be set by AdvisorTable
   const [resetFn, setResetFn] = React.useState<() => void>(() => () => {});
   
-  const setResetFunction = (fn: () => void) => {
+  // Use useCallback to ensure setResetFunction maintains the same reference
+  const setResetFunction = useCallback((fn: () => void) => {
     setResetFn(() => fn);
-  };
+  }, []);
   
-  const resetToAdvisorView = () => {
+  const resetToAdvisorView = useCallback(() => {
     resetFn();
-  };
+  }, [resetFn]);
   
   return (
     <NavContext.Provider value={{ resetToAdvisorView, setResetFunction }}>

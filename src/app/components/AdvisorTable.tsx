@@ -1,5 +1,5 @@
 'use client'; // tells next.js to render this component on the client
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
   Paper, Typography, Box, Button, CircularProgress
@@ -30,6 +30,15 @@ export default function AdvisorTable({ advisorId, viewedAccounts = [], setViewed
   // Get the setResetFunction from our navigation context
   const { setResetFunction } = useNavigation();
   
+  // Create a stable resetToAdvisorView function
+  const resetToAdvisorView = useCallback(() => {
+    setSelectedAdvisor(null);
+    setSelectedAccount(null);
+    if (advisors.length > 0) {
+      setFilteredAdvisors(advisors);
+    }
+  }, [advisors, setSelectedAdvisor, setSelectedAccount, setFilteredAdvisors]);
+  
   // useEffect runs after render - here it's used to fetch data after the component mounts
   useEffect(() => {
     const fetchAdvisors = async () => {
@@ -51,15 +60,8 @@ export default function AdvisorTable({ advisorId, viewedAccounts = [], setViewed
     fetchAdvisors();
   }, []); // Empty array means this effect only runs once after the initial render
   
-  // Set up the reset function when the component mounts
+  // Set up the reset function when the component mounts or when resetToAdvisorView changes
   useEffect(() => {
-    // This function will be called when clicking the Wealth Dynamics title
-    const resetToAdvisorView = () => {
-      setSelectedAdvisor(null);
-      setSelectedAccount(null);
-      setFilteredAdvisors(advisors);
-    };
-    
     // Register our reset function with the context
     setResetFunction(resetToAdvisorView);
     
@@ -67,7 +69,7 @@ export default function AdvisorTable({ advisorId, viewedAccounts = [], setViewed
     return () => {
       setResetFunction(() => {});
     };
-  }, [advisors, setResetFunction]);
+  }, [resetToAdvisorView, setResetFunction]);
   
   // When a user clicks "View Accounts" for an advisor, we set the selected advisor to the advisor in question
   const handleViewAccounts = (advisor: Advisor) => {
